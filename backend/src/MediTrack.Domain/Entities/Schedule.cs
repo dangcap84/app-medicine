@@ -7,6 +7,7 @@ public enum FrequencyType
 {
     Daily,
     Weekly,
+    SpecificDays // Added for schedules on specific days of the week
     // Add other types if needed, e.g., Monthly, SpecificInterval
 }
 

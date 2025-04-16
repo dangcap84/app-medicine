@@ -39,13 +39,18 @@
     *   [X] Registered `IScheduleService`.
     *   [X] Created `SchedulesController`.
     *   [X] Resolved build errors related to `FrequencyType`.
-7.  [ ] **UserProfile CRUD API:** (Get, Update)
-    *   [ ] Create DTOs for UserProfile (UserProfileDto, UpdateUserProfileDto).
-    *   [ ] Create Interface `IUserProfileService`.
-    *   [ ] Implement `UserProfileService`.
-    *   [ ] Register Service.
-    *   [ ] Create `UserProfilesController`.
-8.  [ ] **Notification Logic:** (Background service or scheduled job to create notifications based on schedules)
+7.  [X] **UserProfile CRUD API:** (Get, Update)
+    *   [X] Create DTOs for UserProfile (UserProfileDto, UpdateUserProfileDto).
+    *   [X] Create Interface `IUserProfileService`.
+    *   [X] Implement `UserProfileService`.
+    *   [X] Register Service.
+    *   [X] Create `UserProfilesController`.
+8.  [X] **Notification Logic:** (Background service or scheduled job to create notifications based on schedules)
+    *   [X] Create Interface `INotificationService`.
+    *   [X] Implement `NotificationService`.
+    *   [X] Create background service `NotificationGenerationService`.
+    *   [X] Configure notification settings in `appsettings.json`.
+    *   [X] Register services in `Program.cs`.
 9.  [ ] **Notification API:** (Get notifications for user, mark as read)
 10. [ ] **Unit/Integration Testing:** (Implement tests for services and controllers)
 11. [X] **Swagger/OpenAPI:** Configure Swagger for API documentation and testing. (Includes XML comments)

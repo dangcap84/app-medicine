@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using MediTrack.Infrastructure.Data;
 using MediTrack.Application.Interfaces; // Add this using for IAuthService
 using MediTrack.Infrastructure.Services; // Add this using for AuthService
+using MediTrack.Infrastructure.BackgroundServices; // Add this using for NotificationGenerationService
 using Microsoft.AspNetCore.Authentication.JwtBearer; // Add this using
 using Microsoft.IdentityModel.Tokens; // Add this using
 using System.Text; // Add this using
@@ -19,6 +20,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IMedicineService, MedicineService>(); // Register MedicineService
 builder.Services.AddScoped<IScheduleService, ScheduleService>(); // Register ScheduleService
+builder.Services.AddScoped<IUserProfileService, UserProfileService>(); // Register UserProfileService
+builder.Services.AddScoped<INotificationService, NotificationService>(); // Register NotificationService
+builder.Services.AddHostedService<NotificationGenerationService>(); // Register background service
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
