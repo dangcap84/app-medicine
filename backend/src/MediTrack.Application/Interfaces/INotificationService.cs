@@ -1,4 +1,7 @@
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using MediTrack.Application.Dtos.Notification;
 
 namespace MediTrack.Application.Interfaces
 {
@@ -15,7 +18,28 @@ namespace MediTrack.Application.Interfaces
         /// <returns>A task representing the asynchronous operation.</returns>
         Task GenerateNotificationsAsync(TimeSpan lookAheadTime);
 
-        // Other notification-related methods (like getting notifications, marking as read)
-        // will be added later as part of the Notification API (Step 9).
+        /// <summary>
+        /// Gets all notifications for a specific user.
+        /// </summary>
+        /// <param name="userId">The user's ID.</param>
+        /// <param name="includeRead">Whether to include notifications that have been read.</param>
+        /// <returns>A list of notifications.</returns>
+        Task<IEnumerable<NotificationDto>> GetNotificationsAsync(Guid userId, bool includeRead = false);
+
+        /// <summary>
+        /// Marks a notification as read.
+        /// </summary>
+        /// <param name="userId">The user's ID.</param>
+        /// <param name="notificationId">The notification's ID.</param>
+        /// <returns>True if the notification was marked as read, false if not found or already read.</returns>
+        Task<bool> MarkAsReadAsync(Guid userId, Guid notificationId);
+
+        /// <summary>
+        /// Deletes a notification.
+        /// </summary>
+        /// <param name="userId">The user's ID.</param>
+        /// <param name="notificationId">The notification's ID.</param>
+        /// <returns>True if the notification was deleted, false if not found.</returns>
+        Task<bool> DeleteNotificationAsync(Guid userId, Guid notificationId);
     }
 }

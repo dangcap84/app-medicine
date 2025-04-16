@@ -51,7 +51,12 @@
     *   [X] Create background service `NotificationGenerationService`.
     *   [X] Configure notification settings in `appsettings.json`.
     *   [X] Register services in `Program.cs`.
-9.  [ ] **Notification API:** (Get notifications for user, mark as read)
+9.  [X] **Notification API:** (Get notifications for user, mark as read)
+    *   [X] Add DTOs for Notification (NotificationDto, UpdateNotificationDto).
+    *   [X] Update INotificationService with API methods.
+    *   [X] Update NotificationService implementation.
+    *   [X] Add UpdatedAt to Notification entity and create migration.
+    *   [X] Create NotificationsController with endpoints.
 10. [ ] **Unit/Integration Testing:** (Implement tests for services and controllers)
 11. [X] **Swagger/OpenAPI:** Configure Swagger for API documentation and testing. (Includes XML comments)
 12. [ ] **CORS Configuration:** Allow frontend application to call the API.

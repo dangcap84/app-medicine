@@ -1,11 +1,13 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MediTrack.Application.Interfaces;
+using MediTrack.Application.Dtos.Notification;
 using MediTrack.Domain.Entities;
 using MediTrack.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging; // Add logging
+using Microsoft.Extensions.Logging;
 
 namespace MediTrack.Infrastructure.Services
 {
@@ -148,6 +150,84 @@ namespace MediTrack.Infrastructure.Services
                 }
             }
             return notificationTimes;
+        }
+
+        public async Task<IEnumerable<NotificationDto>> GetNotificationsAsync(Guid userId, bool includeRead = false)
+        {
+            var query = _context.Notifications
+                .AsNoTracking()
+                .Where(n => n.UserId == userId);
+
+            if (!includeRead)
+            {
+                query = query.Where(n => !n.IsRead);
+            }
+
+            var notifications = await query
+                .OrderByDescending(n => n.ScheduledTime)
+                .Select(n => new NotificationDto
+                {
+                    Id = n.Id,
+                    UserId = n.UserId,
+                    ScheduleTimeId = n.ScheduleTimeId,
+                    Message = n.Message,
+                    ScheduledTime = n.ScheduledTime,
+                    IsRead = n.IsRead,
+                    SentTime = n.SentTime,
+                    CreatedAt = n.CreatedAt,
+                    UpdatedAt = n.UpdatedAt
+                })
+                .ToListAsync();
+
+            return notifications;
+        }
+
+        public async Task<bool> MarkAsReadAsync(Guid userId, Guid notificationId)
+        {
+            var notification = await _context.Notifications
+                .FirstOrDefaultAsync(n => n.Id == notificationId && n.UserId == userId);
+
+            if (notification == null || notification.IsRead)
+            {
+                return false;
+            }
+
+            notification.IsRead = true;
+            notification.UpdatedAt = DateTime.UtcNow;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                _logger.LogWarning("Concurrency conflict when marking notification {NotificationId} as read", notificationId);
+                return false;
+            }
+        }
+
+        public async Task<bool> DeleteNotificationAsync(Guid userId, Guid notificationId)
+        {
+            var notification = await _context.Notifications
+                .FirstOrDefaultAsync(n => n.Id == notificationId && n.UserId == userId);
+
+            if (notification == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                _context.Notifications.Remove(notification);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting notification {NotificationId}", notificationId);
+                return false;
+            }
         }
     }
 }
