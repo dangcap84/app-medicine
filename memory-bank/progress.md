@@ -57,10 +57,17 @@
     *   [X] Update NotificationService implementation.
     *   [X] Add UpdatedAt to Notification entity and create migration.
     *   [X] Create NotificationsController with endpoints.
-10. [ ] **Unit/Integration Testing:** (Implement tests for services and controllers)
+10. [X] **Unit/Integration Testing:**
+    *   [X] Created basic Unit Test files for Services (`Auth`, `Medicine`, `Schedule`, `UserProfile`, `Notification`) using Moq.
+    *   [X] Implemented comprehensive Unit Tests for Services including input validation and error cases.
+    *   [X] Implemented Integration Tests for Controllers (`Auth`, `Medicines`, `Schedules`, `UserProfiles`, `Notifications`).
 11. [X] **Swagger/OpenAPI:** Configure Swagger for API documentation and testing. (Includes XML comments)
-12. [ ] **CORS Configuration:** Allow frontend application to call the API.
-13. [ ] **Error Handling & Logging:** Implement global error handling and enhance logging.
+12. [X] **CORS Configuration:** Allow frontend application (localhost:3000, localhost:5173) to call the API.
+13. [X] **Error Handling & Logging:**
+    *   [X] Created custom exception types for domain-specific errors.
+    *   [X] Implemented global error handling middleware.
+    *   [X] Configured structured logging with Serilog.
+    *   [X] Added request/response logging middleware.
 
 ## Frontend Setup (Vue.js with TypeScript)
 

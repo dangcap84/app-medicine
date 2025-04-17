@@ -1,14 +1,31 @@
 using Microsoft.EntityFrameworkCore;
 using MediTrack.Infrastructure.Data;
-using MediTrack.Application.Interfaces; // Add this using for IAuthService
-using MediTrack.Infrastructure.Services; // Add this using for AuthService
-using MediTrack.Infrastructure.BackgroundServices; // Add this using for NotificationGenerationService
-using Microsoft.AspNetCore.Authentication.JwtBearer; // Add this using
-using Microsoft.IdentityModel.Tokens; // Add this using
-using System.Text; // Add this using
-using System.Reflection; // Add this using for XML comments
+using MediTrack.Application.Interfaces;
+using MediTrack.Infrastructure.Services;
+using MediTrack.Infrastructure.BackgroundServices;
+using MediTrack.Api.Middleware;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Add CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendPolicy", policy =>
+    {
+        policy.WithOrigins(
+                "http://localhost:3000",     // Development
+                "http://localhost:5173",     // Vite default
+                "https://meditrack.com"      // Production (example)
+            )
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
+    });
+});
 
 // Add services to the container.
 
@@ -18,17 +35,16 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // Register Services
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IMedicineService, MedicineService>(); // Register MedicineService
-builder.Services.AddScoped<IScheduleService, ScheduleService>(); // Register ScheduleService
-builder.Services.AddScoped<IUserProfileService, UserProfileService>(); // Register UserProfileService
-builder.Services.AddScoped<INotificationService, NotificationService>(); // Register NotificationService
-builder.Services.AddHostedService<NotificationGenerationService>(); // Register background service
+builder.Services.AddScoped<IMedicineService, MedicineService>();
+builder.Services.AddScoped<IScheduleService, ScheduleService>();
+builder.Services.AddScoped<IUserProfileService, UserProfileService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddHostedService<NotificationGenerationService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    // using System.Reflection;
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
@@ -56,33 +72,31 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddAuthorization(); // Add Authorization services
-
-// Add Controllers
-builder.Services.AddControllers(); // Make sure controllers are added
+builder.Services.AddAuthorization();
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-
-// Add Development specific configurations if needed
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
-    // Enable middleware to serve generated Swagger as a JSON endpoint.
     app.UseSwagger();
-    // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
-    // specifying the Swagger JSON endpoint.
-    app.UseSwaggerUI(); // By default, it serves UI at /swagger
+    app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection(); // Redirect HTTP to HTTPS
+app.UseHttpsRedirection();
 
-app.UseAuthentication(); // Add Authentication middleware
-app.UseAuthorization(); // Add Authorization middleware
+// Use CORS before Authentication/Authorization
+app.UseCors("FrontendPolicy");
 
-app.MapControllers(); // Map controller endpoints
+// Add middleware in the correct order
+app.UseMiddleware<RequestResponseLoggingMiddleware>();
+app.UseMiddleware<ErrorHandlingMiddleware>();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
 
 app.Run();
-
-// Remove the WeatherForecast record
