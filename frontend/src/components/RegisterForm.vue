@@ -4,10 +4,11 @@
     <v-card-text>
       <v-form @submit.prevent="onSubmit" ref="formRef" v-slot="{ isValid }">
         <v-text-field
-          v-model="username"
-          label="Tên đăng nhập"
-          prepend-inner-icon="mdi-account"
-          :rules="[v => !!v || 'Bắt buộc nhập']"
+          v-model="email"
+          label="Email"
+          type="email"
+          prepend-inner-icon="mdi-email"
+          :rules="[v => !!v || 'Bắt buộc nhập', v => /.+@.+\..+/.test(v) || 'Email không hợp lệ']"
           required
         />
         <v-text-field
@@ -44,9 +45,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import axios from 'axios'
+import api from '../plugins/axios' // Sử dụng đường dẫn tương đối
 
-const username = ref('')
+const email = ref('') // Thay username bằng email
 const password = ref('')
 const confirmPassword = ref('')
 const loading = ref(false)
@@ -63,8 +64,9 @@ const onSubmit = async () => {
   }
   loading.value = true
   try {
-    const response = await axios.post('/api/auth/register', {
-      username: username.value,
+    // Sử dụng instance 'api' đã cấu hình
+    const response = await api.post('/auth/register', { // Bỏ '/api' vì đã có trong baseURL của instance 'api'
+      email: email.value, // Gửi email thay vì username
       password: password.value
     })
     // Lưu JWT vào localStorage
