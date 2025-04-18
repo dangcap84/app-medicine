@@ -71,21 +71,19 @@
 
 ## Frontend Setup (Vue.js with TypeScript)
 
-1.  [ ] **Project Setup:** Initialize Vue.js project using Vite.
-2.  [ ] **Install Dependencies:** Add `axios` for API calls, `vue-router` for routing, state management library (e.g., Pinia).
-3.  [ ] **Authentication:**
-    *   [ ] Create Login/Register pages/components.
-    *   [ ] Implement logic to call Auth API endpoints.
-    *   [ ] Store JWT token securely (e.g., localStorage/sessionStorage).
-    *   [ ] Setup Axios interceptors to attach token to requests.
-    *   [ ] Implement route guards for protected routes.
-4.  [ ] **Medicine Management:**
-    *   [ ] Create components for listing, adding, editing, deleting medicines.
-    *   [ ] Implement logic to call Medicine API endpoints.
-5.  [ ] **Schedule Management:**
-    *   [ ] Create components for managing schedules.
-    *   [ ] Implement logic to call Schedule API endpoints.
-6.  [ ] **Notifications:**
-    *   [ ] Display notifications to the user.
-    *   [ ] Implement logic to call Notification API endpoints.
-7.  [ ] **UI/UX:** Implement basic styling and layout.
+1.  [X] **Project Setup:** Đã khởi tạo dự án Vue 3 + Vite + TypeScript, cấu trúc src, components, assets, style.css, main.ts chuẩn Vuetify.
+2.  [X] **Install Dependencies:** Đã cài đặt đầy đủ: vue, vuetify, @mdi/font, vite, typescript, vue-tsc, @vitejs/plugin-vue, pinia, vue-router.
+3.  [X] **Authentication:**
+    *   [X] Tạo component LoginForm.vue và RegisterForm.vue.
+    *   [X] Gọi API đăng nhập/đăng ký, lưu JWT vào localStorage, xử lý lỗi cơ bản.
+    *   [X] Setup Axios interceptors để tự động đính kèm token vào request.
+    *   [X] Implement route guards cho các route bảo vệ.
+4.  [X] **Medicine Management:**
+    *   [X] Tạo component MedicineList.vue, hiển thị danh sách thuốc, gọi API lấy danh sách thuốc từ backend.
+    *   [X] Tạo component MedicineForm.vue, thêm/sửa thuốc, xóa thuốc, cập nhật danh sách.
+5.  [X] **Schedule Management:**
+    *   [X] Tạo component ScheduleList.vue, hiển thị danh sách lịch, gọi API.
+    *   [X] Tạo component ScheduleForm.vue, thêm/sửa/xóa lịch, cập nhật danh sách.
+6.  [X] **Notifications:**
+    *   [X] Tạo component NotificationList.vue, hiển thị danh sách thông báo, đánh dấu đã đọc.
+7.  [X] **UI/UX:** Tạo layout tổng thể AppLayout.vue, navigation, responsive, tích hợp router và các component vào layout.
