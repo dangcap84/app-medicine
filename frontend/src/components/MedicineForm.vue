@@ -80,6 +80,9 @@ const success = ref('')
 const formRef = ref()
 const medicineUnits = ref<Array<{ id: string; name: string }>>([])
 
+const MEDICINE_UNIT_CACHE_KEY = 'medicine_units_cache'
+const MEDICINE_UNIT_CACHE_TTL = 24 * 60 * 60 * 1000 // 1 ngày
+
 watch(() => props.medicine, (val) => {
   if (val) {
     form.value.name = val.name
@@ -98,11 +101,33 @@ watch(() => props.medicine, (val) => {
 
 const loadMedicineUnits = async () => {
   try {
+    // Kiểm tra cache localStorage
+    const cacheRaw = localStorage.getItem(MEDICINE_UNIT_CACHE_KEY)
+    if (cacheRaw) {
+      const cache = JSON.parse(cacheRaw)
+      if (cache.data && cache.timestamp && Date.now() - cache.timestamp < MEDICINE_UNIT_CACHE_TTL) {
+        medicineUnits.value = cache.data
+        return
+      }
+    }
+    // Nếu không có cache hoặc cache hết hạn, gọi API
     const response = await api.get('/medicine-units')
     medicineUnits.value = response.data
+    // Lưu cache
+    localStorage.setItem(MEDICINE_UNIT_CACHE_KEY, JSON.stringify({
+      data: response.data,
+      timestamp: Date.now()
+    }))
   } catch (e: any) {
     error.value = 'Không thể tải danh sách đơn vị thuốc'
   }
+}
+
+/**
+ * Hàm xóa cache đơn vị thuốc (dùng nội bộ file hoặc import lại nếu cần)
+ */
+function clearMedicineUnitCache() {
+  localStorage.removeItem(MEDICINE_UNIT_CACHE_KEY)
 }
 
 const onSubmit = async () => {
