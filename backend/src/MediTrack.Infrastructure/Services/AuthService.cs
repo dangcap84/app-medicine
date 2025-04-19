@@ -11,6 +11,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using MediTrack.Domain.Exceptions.Authentication;
 using BCryptNet = BCrypt.Net.BCrypt; // Alias to avoid naming conflicts
 
 namespace MediTrack.Infrastructure.Services;
@@ -32,9 +33,7 @@ public class AuthService : IAuthService
         var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == registerDto.Email);
         if (existingUser != null)
         {
-            // Handle user already exists error (e.g., throw exception or return specific response)
-            // For now, returning null
-            return null;
+            throw new DuplicateEmailException();
         }
 
         // Hash the password
@@ -83,36 +82,60 @@ public class AuthService : IAuthService
 
     private AuthResponseDto GenerateJwtToken(User user)
     {
-        var jwtSettings = _configuration.GetSection("Jwt");
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"] ?? throw new InvalidOperationException("JWT Key not configured")));
-        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-        var claims = new List<Claim>
+        try
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()), // Subject = UserId
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) // Unique token identifier
-            // Add other claims as needed (e.g., roles)
-        };
+            var jwtSettings = _configuration.GetSection("Jwt");
+            
+            // Validate JWT settings
+            var key = jwtSettings["Key"] ?? throw new InvalidOperationException("JWT Key not configured");
+            var issuer = jwtSettings["Issuer"] ?? throw new InvalidOperationException("JWT Issuer not configured");
+            var audience = jwtSettings["Audience"] ?? throw new InvalidOperationException("JWT Audience not configured");
+            var expirationHours = jwtSettings["ExpirationHours"] ?? throw new InvalidOperationException("JWT ExpirationHours not configured");
 
-        var expires = DateTime.UtcNow.AddHours(Convert.ToDouble(jwtSettings["ExpirationHours"] ?? "1")); // Default to 1 hour expiration
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
+            if (securityKey.KeySize < 256)
+            {
+                throw new InvalidOperationException("JWT Key must be at least 32 characters long");
+            }
 
-        var token = new JwtSecurityToken(
-            issuer: jwtSettings["Issuer"],
-            audience: jwtSettings["Audience"],
-            claims: claims,
-            expires: expires,
-            signingCredentials: credentials);
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var tokenString = tokenHandler.WriteToken(token);
+            var claims = new List<Claim>
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
 
-        return new AuthResponseDto
+            var expires = DateTime.UtcNow.AddHours(Convert.ToDouble(expirationHours));
+
+            var token = new JwtSecurityToken(
+                issuer: issuer,
+                audience: audience,
+                claims: claims,
+                expires: expires,
+                signingCredentials: credentials);
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var tokenString = tokenHandler.WriteToken(token);
+
+            if (string.IsNullOrEmpty(tokenString))
+            {
+                throw new InvalidOperationException("Generated token string is null or empty");
+            }
+
+            return new AuthResponseDto
+            {
+                Token = tokenString,
+                Expiration = expires,
+                UserId = user.Id,
+                Email = user.Email
+            };
+        }
+        catch (Exception ex)
         {
-            Token = tokenString,
-            Expiration = expires,
-            UserId = user.Id,
-            Email = user.Email
-        };
+            // Log the specific error
+            throw new InvalidOperationException($"Error generating JWT token: {ex.Message}", ex);
+        }
     }
 }

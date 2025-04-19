@@ -2,6 +2,7 @@ using MediTrack.Application.Dtos.Auth;
 using MediTrack.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using MediTrack.Domain.Exceptions.Authentication;
 
 namespace MediTrack.Api.Controllers;
 
@@ -24,15 +25,15 @@ public class AuthController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        var result = await _authService.RegisterAsync(registerDto);
-
-        if (result == null)
+        try 
         {
-            // Consider more specific error messages in a real application
-            return BadRequest("Registration failed. Email might already be in use.");
+            var result = await _authService.RegisterAsync(registerDto);
+            return Ok(result);
         }
-
-        return Ok(result);
+        catch (DuplicateEmailException ex)
+        {
+            return Conflict(new { message = ex.Message, code = ex.Code });
+        }
     }
 
     [HttpPost("login")]
@@ -43,13 +44,26 @@ public class AuthController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        var result = await _authService.LoginAsync(loginDto);
-
-        if (result == null)
+        try
         {
-            return Unauthorized("Invalid email or password.");
-        }
+            var result = await _authService.LoginAsync(loginDto);
 
-        return Ok(result);
+            if (result == null)
+            {
+                return Unauthorized("Invalid email or password.");
+            }
+
+            return Ok(result);
+        }
+        catch (InvalidOperationException ex)
+        {
+            // Log the error
+            return StatusCode(500, new { message = "An error occurred during authentication.", details = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            // Log the error
+            return StatusCode(500, new { message = "An unexpected error occurred.", details = ex.Message });
+        }
     }
 }

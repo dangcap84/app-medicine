@@ -74,7 +74,11 @@ const onSubmit = async () => {
     success.value = 'Đăng ký thành công!'
     // TODO: chuyển hướng sang trang chính
   } catch (e: any) {
-    error.value = e.response?.data?.message || 'Đăng ký thất bại'
+    if (e.response?.status === 409) {
+      error.value = e.response.data.message
+    } else {
+      error.value = e.response?.data?.message || 'Đăng ký thất bại'
+    }
   } finally {
     loading.value = false
   }
