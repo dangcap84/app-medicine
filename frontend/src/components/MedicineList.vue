@@ -131,7 +131,7 @@ const deleteMedicine = async (id: number) => {
 
 onMounted(() => {
   fetchMedicines()
-  fetchMedicineUnits()
+  // fetchMedicineUnits() bị loại bỏ, chỉ gọi khi thực sự cần
 })
 </script>
 
