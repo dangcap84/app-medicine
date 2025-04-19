@@ -1,5 +1,5 @@
 <template>
-  <v-card class="mx-auto my-12" max-width="600">
+  <v-card class="mx-auto my-12" max-width="900">
     <v-card-title>Danh sách thuốc</v-card-title>
     <v-card-text>
       <v-btn color="primary" class="mb-4" @click="openAdd" :disabled="loading">
@@ -9,25 +9,32 @@
         Tải lại
       </v-btn>
       <v-alert v-if="error" type="error" dense>{{ error }}</v-alert>
-      <v-list v-if="medicines.length">
-        <v-list-item v-for="medicine in medicines" :key="medicine.id">
-          <v-list-item-content>
-            <v-list-item-title>{{ medicine.name }}</v-list-item-title>
-            <v-list-item-subtitle>{{ medicine.description }}</v-list-item-subtitle>
-          </v-list-item-content>
-          <v-list-item-action>
-            <v-btn icon="mdi-pencil" @click="openEdit(medicine)" />
-            <v-btn icon="mdi-delete" color="error" @click="deleteMedicine(medicine.id)" />
-          </v-list-item-action>
-        </v-list-item>
-      </v-list>
-      <div v-else-if="!loading">Không có thuốc nào.</div>
-      <medicine-form
-        v-if="showForm"
-        :medicine="selectedMedicine"
-        @saved="onSaved"
-        @close="closeForm"
-      />
+      <v-data-table
+        :headers="headers"
+        :items="medicines"
+        :loading="loading"
+        class="elevation-1"
+        item-key="id"
+        :items-per-page="8"
+        no-data-text="Không có thuốc nào."
+        dense
+      >
+        <template #item.medicineUnitId="{ item }">
+          {{ getUnitName(item.medicineUnitId) }}
+        </template>
+        <template #item.actions="{ item }">
+          <v-btn icon="mdi-pencil" variant="text" @click="openEdit(item)" />
+          <v-btn icon="mdi-delete" color="error" variant="text" @click="deleteMedicine(item.id)" />
+        </template>
+      </v-data-table>
+      <v-dialog v-model="showForm" max-width="500">
+        <medicine-form
+          v-if="showForm"
+          :medicine="selectedMedicine"
+          @saved="onSaved"
+          @close="closeForm"
+        />
+      </v-dialog>
     </v-card-text>
   </v-card>
 </template>
@@ -40,14 +47,30 @@ import MedicineForm from './MedicineForm.vue'
 interface Medicine {
   id: number
   name: string
+  dosage?: string
+  medicineUnitId?: string
   description?: string
 }
 
+interface MedicineUnit {
+  id: string
+  name: string
+}
+
 const medicines = ref<Medicine[]>([])
+const medicineUnits = ref<MedicineUnit[]>([])
 const loading = ref(false)
 const error = ref('')
 const showForm = ref(false)
 const selectedMedicine = ref<Medicine | undefined>(undefined)
+
+const headers = [
+  { text: 'Tên thuốc', value: 'name', align: "start" as const },
+  { text: 'Liều lượng', value: 'dosage' },
+  { text: 'Đơn vị', value: 'medicineUnitId' },
+  { text: 'Mô tả', value: 'description' },
+  { text: 'Thao tác', value: 'actions', sortable: false }
+]
 
 const fetchMedicines = async () => {
   loading.value = true
@@ -60,6 +83,21 @@ const fetchMedicines = async () => {
   } finally {
     loading.value = false
   }
+}
+
+const fetchMedicineUnits = async () => {
+  try {
+    const res = await api.get('/medicine-units')
+    medicineUnits.value = res.data
+  } catch {
+    // ignore
+  }
+}
+
+const getUnitName = (id: string | undefined) => {
+  if (!id) return ''
+  const unit = medicineUnits.value.find(u => u.id === id)
+  return unit ? unit.name : ''
 }
 
 const openAdd = () => {
@@ -91,5 +129,28 @@ const deleteMedicine = async (id: number) => {
   }
 }
 
-onMounted(fetchMedicines)
+onMounted(() => {
+  fetchMedicines()
+  fetchMedicineUnits()
+})
 </script>
+
+<style scoped>
+.v-data-table {
+  border-radius: 16px;
+  margin-top: 16px;
+  background: #fafbfc;
+}
+.v-data-table th {
+  background: #e3f2fd !important;
+  color: #1976d2 !important;
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+.v-data-table td {
+  font-size: 1rem;
+}
+.v-btn[icon] {
+  margin: 0 2px;
+}
+</style>

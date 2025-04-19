@@ -4,10 +4,11 @@
     <v-card-text>
       <v-form @submit.prevent="onSubmit" ref="formRef" v-slot="{ isValid }">
         <v-text-field
-          v-model="username"
-          label="Tên đăng nhập"
-          prepend-inner-icon="mdi-account"
-          :rules="[v => !!v || 'Bắt buộc nhập']"
+          v-model="email"
+          label="Email"
+          type="email"
+          prepend-inner-icon="mdi-email"
+          :rules="[v => !!v || 'Bắt buộc nhập', v => /.+@.+\..+/.test(v) || 'Email không hợp lệ']"
           required
         />
         <v-text-field
@@ -35,9 +36,12 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import axios from 'axios'
+import { useRouter } from 'vue-router'
+import api from '../plugins/axios'
 
-const username = ref('')
+const router = useRouter()
+
+const email = ref('')
 const password = ref('')
 const loading = ref(false)
 const error = ref('')
@@ -47,13 +51,14 @@ const onSubmit = async () => {
   error.value = ''
   loading.value = true
   try {
-    const response = await axios.post('/api/auth/login', {
-      username: username.value,
+    const response = await api.post('/auth/login', {
+      email: email.value,
       password: password.value
     })
     // Lưu JWT vào localStorage
     localStorage.setItem('token', response.data.token)
-    // TODO: chuyển hướng sang trang chính
+    // Chuyển hướng về trang chủ sau khi đăng nhập thành công
+    router.push('/')
   } catch (e: any) {
     error.value = e.response?.data?.message || 'Đăng nhập thất bại'
   } finally {

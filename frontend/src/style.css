@@ -1,79 +1,56 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-.card {
-  padding: 2em;
-}
-
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+/* Responsive tweaks for mobile */
+@media (max-width: 600px) {
+  .v-card,
+  .v-data-table,
+  .v-card-text,
+  .v-card-title {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    font-size: 1rem !important;
   }
-  a:hover {
-    color: #747bff;
+  .v-data-table {
+    font-size: 0.98rem !important;
   }
-  button {
-    background-color: #f9f9f9;
+  .v-data-table th,
+  .v-data-table td {
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    font-size: 0.98rem !important;
+    white-space: normal !important;
+  }
+  .v-btn,
+  .v-btn__content {
+    font-size: 1rem !important;
+    min-width: 36px !important;
+    padding: 0 8px !important;
+  }
+  .v-toolbar-title {
+    font-size: 1.1rem !important;
+  }
+  .v-app-bar {
+    min-height: 48px !important;
+    padding: 0 4px !important;
+  }
+  .home-banner {
+    flex-direction: column !important;
+    padding: 16px 0 8px 0 !important;
+    text-align: center;
+  }
+  .banner-img {
+    margin: 0 0 12px 0 !important;
+    width: 72px !important;
+    height: 72px !important;
+  }
+  .form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px 0 !important;
+  }
+  .form-actions {
+    justify-content: center !important;
+  }
+  .v-dialog {
+    margin: 0 !important;
+    width: 98vw !important;
+    max-width: 99vw !important;
   }
 }
