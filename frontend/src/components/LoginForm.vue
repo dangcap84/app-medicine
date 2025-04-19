@@ -36,7 +36,10 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import api from '../plugins/axios'
+
+const router = useRouter()
 
 const email = ref('')
 const password = ref('')
@@ -54,7 +57,8 @@ const onSubmit = async () => {
     })
     // Lưu JWT vào localStorage
     localStorage.setItem('token', response.data.token)
-    // TODO: chuyển hướng sang trang chính
+    // Chuyển hướng về trang chủ sau khi đăng nhập thành công
+    router.push('/')
   } catch (e: any) {
     error.value = e.response?.data?.message || 'Đăng nhập thất bại'
   } finally {
